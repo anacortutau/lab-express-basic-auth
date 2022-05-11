@@ -82,24 +82,26 @@ router.post("/login", async (req, res, next)=>{
 
 
     if(!username|| !password ){
-        res.render("user/login", {
+        res.render("user/login.hbs", {
             errorMessage: "debes rellenar todos los datos"
         })
         return; 
     }
     // mensajito para ver si el usuario es valido o no
     try{
-    const foundUser = await UserModel.findOne({ $or:[{username: username},{password: password}]})
+    const foundUser = await UserModel.findOne({username: username})
     
 
     if(!foundUser){
         res.render("user/login", {
-            errorMessage: "El usuario ya existe"
+            errorMessage: "El usuario no existe"
         })
         return; 
     }
 
+    
     const passwordCheck = await bcryptjs.compare(password, foundUser.password)
+    console.log(passwordCheck)
     if(!passwordCheck){
         res.render("user/login", {
             errorMessage: "contraseña errónea"
@@ -107,12 +109,10 @@ router.post("/login", async (req, res, next)=>{
         return; 
 
     }
-        //AQUI ESTA EL PROBLEMA EN EL REQ.SESSION.USER
-    console.log(req.session.user); 
-
-    req.app.locals.userIsActive = true;
-    //req.session.user = foundUser;
-    //req.app.locals.userIsActive = true;
+     
+    
+    req.session.user = foundUser;
+    
 
     // llevar al usuario dentro de su pagina
 
@@ -123,11 +123,6 @@ router.post("/login", async (req, res, next)=>{
     }
   
 })
-
-
-
-
-
 
 
 
